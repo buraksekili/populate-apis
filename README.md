@@ -11,6 +11,7 @@ TYK_AUTH=<AUTH_KEY> MAX=<MAX> sh create.sh
 ## clean.sh
 
 Deletes all TykApis and SecurityPolicies created on your Dashboard.
+
 Usage: 
 ```bash
 TYK_AUTH=<AUTH_KEY> sh clean.sh
