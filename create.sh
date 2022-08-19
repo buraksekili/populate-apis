@@ -40,7 +40,6 @@ createApi() {
 
 if [[ -z "$MAX" ]]
 then
-    echo "not set"
     MAX=5
 fi
 
@@ -48,6 +47,5 @@ fi
 for i in `seq 1 $MAX`
 do
     apiName=$(printf "test-api-%d" $i)
-    echo $i
-    # createApi $apiName
+    createApi $apiName
 done
