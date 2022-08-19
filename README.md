@@ -1,16 +1,24 @@
 # populate
 
 ## create.sh
-Creates a specified number of APIs on the Tyk Dashboard. By default, it creates 5 APIs.
+Creates a specified number of APIs and SecurityPolicies on the Tyk Dashboard. By default, it creates 5 APIs.
 
 Usage:
 ```bash
 TYK_AUTH=<AUTH_KEY> MAX=<MAX> sh create.sh
 ```
 
+## clean.sh
+
+Deletes all TykApis and SecurityPolicies created on your Dashboard.
+Usage: 
+```bash
+TYK_AUTH=<AUTH_KEY> sh clean.sh
+```
+
 ## delete.sh
 
-Deletes all TykApis created on your k8s environment.
+Deletes all TykApis and SecurityPolicies created on your k8s environment.
 
 Usage: 
 ```bash
