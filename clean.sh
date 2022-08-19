@@ -22,5 +22,4 @@ polIDs=$(echo $policiesJSON | jq -r '.Data[] | ._id')
 for id in $polIDs
 do
     deletePolicy $id
-    i=$((i+1))
 done
