@@ -1,3 +1,10 @@
+#!/bin/bash
+#
+# Creates a specified number of APIs on the Tyk Dashboard. By default, it creates 5 APIs.
+# 
+# Usage: 
+#   TYK_AUTH=<AUTH_KEY> MAX=<MAX> sh create.sh
+
 createApi() {
     reqBody='{
         "api_definition": {
@@ -30,9 +37,17 @@ createApi() {
     -d "$reqBody" http://localhost:3000/api/apis
 }
 
-MAX=5
+
+if [[ -z "$MAX" ]]
+then
+    echo "not set"
+    MAX=5
+fi
+
+
 for i in `seq 1 $MAX`
 do
     apiName=$(printf "test-api-%d" $i)
-    createApi $apiName
+    echo $i
+    # createApi $apiName
 done
