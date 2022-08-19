@@ -21,8 +21,8 @@ createApi() {
             "version_data": {
                 "not_versioned": true,
                 "versions": {
-                    "Default": {
-                        "name": "Default"
+                    "default": {
+                        "name": "default"
                     }
                 }
             }
@@ -31,12 +31,29 @@ createApi() {
     reqBody=$(printf "$reqBody" "$1")
     
     curl -sSi -H "Authorization: $TYK_AUTH" \
-    -s \
-    -H "Content-Type: application/json" \
-    -X POST \
-    -d "$reqBody" http://localhost:3000/api/apis
+        -H "Content-Type: application/json" \
+        -X POST \
+        -d "$reqBody" http://localhost:3000/api/apis
 }
 
+createPolicy() {
+    reqBody='{
+        "rate": 1000,
+        "per": 60,
+        "quota_max": -1,
+        "quota_renews": 1481546970,
+        "quota_remaining": 0,
+        "quota_renewal_rate": 60,
+        "name": "%s",
+        "active": true
+    }'
+    reqBody=$(printf "$reqBody" "$1")
+
+    curl -sSi -H "Authorization: $TYK_AUTH" \
+        -H "Content-Type: application/json" \
+        -X POST \
+        -d "$reqBody" http://localhost:3000/api/portal/policies/
+}
 
 if [[ -z "$MAX" ]]
 then
@@ -48,4 +65,7 @@ for i in `seq 1 $MAX`
 do
     apiName=$(printf "test-api-%d" $i)
     createApi $apiName
+
+    policyName=$(printf "custom-policy-%d" $i)
+    createPolicy $policyName
 done
