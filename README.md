@@ -17,13 +17,13 @@ Usage:
 TYK_AUTH=<AUTH_KEY> sh clean.sh
 ```
 
-## delete.sh
+## k8s-clean.sh
 
 Deletes all TykApis and SecurityPolicies created on your k8s environment.
 
 Usage: 
 ```bash
-sh delete.sh
+sh k8s-clean.sh
 ```
 
 For example, let's say you have following resources on your k8s cluster.
@@ -45,5 +45,5 @@ replace-me-9            /httpbin/    http://httpbin.org/   true
 
 You can delete all as follows:
 ```
-sh delete.sh
+sh k8s-clean.sh
 ```
