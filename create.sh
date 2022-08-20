@@ -11,7 +11,7 @@ createApi() {
             "name": "%s",
             "proxy": {
                 "target_url": "http://httpbin.org/",
-                "listen_path": "/httpbin/",
+                "listen_path": "/%s/",
                 "strip_listen_path": true
             },
             "use_keyless": true,
@@ -28,7 +28,7 @@ createApi() {
             }
         }
     }'
-    reqBody=$(printf "$reqBody" "$1")
+    reqBody=$(printf "$reqBody" "$1" "$1")
     
     curl -sSi -H "Authorization: $TYK_AUTH" \
         -H "Content-Type: application/json" \
