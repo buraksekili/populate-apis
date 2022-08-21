@@ -3,7 +3,17 @@
 # Deletes all TykApis created on your k8s environment.
 # 
 # Usage: 
-#   sh delete.sh
+#   sh k8s-clean.sh
+
+# First delete all policies.
+securityPolicies=$(kubectl get securitypolicies -A -o json | jq -r '.items[] | {name: .metadata.name, namespace: .metadata.namespace}')
+policies=$(echo "$securityPolicies" | jq -c -r '.')
+
+for policy in ${policies[@]}; do
+    name=$(echo $policy | jq -r '.name')
+    ns=$(echo $policy | jq -r '.namespace')
+    kubectl delete securitypolicies $name -n $ns
+done
 
 tykapis=$(kubectl get tykapis -A -o json | jq -r '.items[] | {name: .metadata.name, namespace: .metadata.namespace}')
 apis=$(echo "$tykapis" | jq -c -r '.')
@@ -15,11 +25,3 @@ for api in ${apis[@]}; do
 done
 
 
-securityPolicies=$(kubectl get securitypolicies -A -o json | jq -r '.items[] | {name: .metadata.name, namespace: .metadata.namespace}')
-policies=$(echo "$securityPolicies" | jq -c -r '.')
-
-for policy in ${policies[@]}; do
-    name=$(echo $policy | jq -r '.name')
-    ns=$(echo $policy | jq -r '.namespace')
-    kubectl delete securitypolicies $name -n $ns
-done
