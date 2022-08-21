@@ -28,7 +28,8 @@ createApi() {
             }
         }
     }'
-    reqBody=$(printf "$reqBody" "$1" "$1")
+    reqBody=$(printf "$reqBody" "$1" "$2")
+
     
     curl -sSi -H "Authorization: $TYK_AUTH" \
         -H "Content-Type: application/json" \
@@ -61,10 +62,19 @@ then
 fi
 
 
+RANDOM=$$
 for i in `seq 1 $MAX`
 do
-    apiName=$(printf "test-api-%d" $i)
-    createApi $apiName
+    env="#testing"
+    r=$(($RANDOM%10))
+    if [[ $r -gt 5 ]]
+    then
+	    env="#prod"
+    fi
+
+    apiName=$(printf "test-api-%d %s" $i $env)
+    listenPath=$(printf "test-api-%d" $i)
+    createApi "$apiName" "$listenPath"
 
     policyName=$(printf "custom-policy-%d" $i)
     createPolicy $policyName
