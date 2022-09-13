@@ -5,7 +5,7 @@ Creates a specified number of APIs and SecurityPolicies on the Tyk Dashboard. By
 
 Usage:
 ```bash
-TYK_AUTH=<AUTH_KEY> MAX=<MAX> sh create.sh
+TYK_AUTH=<AUTH_KEY> MAX=<MAX> ./create.sh
 ```
 
 ## clean.sh
@@ -14,7 +14,7 @@ Deletes all TykApis and SecurityPolicies created on your Dashboard.
 
 Usage: 
 ```bash
-TYK_AUTH=<AUTH_KEY> sh clean.sh
+TYK_AUTH=<AUTH_KEY> ./clean.sh
 ```
 
 ## k8s-clean.sh
@@ -23,7 +23,7 @@ Deletes all TykApis and SecurityPolicies created on your k8s environment.
 
 Usage: 
 ```bash
-sh k8s-clean.sh
+./k8s-clean.sh
 ```
 
 For example, let's say you have following resources on your k8s cluster.
@@ -45,5 +45,5 @@ replace-me-9            /httpbin/    http://httpbin.org/   true
 
 You can delete all as follows:
 ```
-sh k8s-clean.sh
+./k8s-clean.sh
 ```
