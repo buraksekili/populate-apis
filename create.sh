@@ -14,10 +14,12 @@ createApi() {
                 "listen_path": "/%s/",
                 "strip_listen_path": true
             },
-            "use_keyless": true,
             "active": true,
             "disable_rate_limit": true,
             "disable_quota": true,
+            "config_data": {
+                "k8sName": "%s-k8s"
+            },
             "version_data": {
                 "not_versioned": true,
                 "versions": {
@@ -28,7 +30,7 @@ createApi() {
             }
         }
     }'
-    reqBody=$(printf "$reqBody" "$1" "$2")
+    reqBody=$(printf "$reqBody" "$1" "$2" "$2")
 
     
     curl -sSi -H "Authorization: $TYK_AUTH" \
@@ -69,7 +71,7 @@ do
     r=$(($RANDOM%10))
     if [[ $r -gt 5 ]]
     then
-	    env="#prod"
+	    env="#production"
     fi
 
     apiName=$(printf "test-api-%d %s" $i $env)
