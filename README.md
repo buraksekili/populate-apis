@@ -47,3 +47,12 @@ You can delete all as follows:
 ```
 ./k8s-clean.sh
 ```
+
+## k8s-create.sh
+
+Creates multiple ApiDefinition CRs in your k8s environment.
+
+Usage:
+```bash
+MAX=${NUM} ./k8s-create.sh
+```
