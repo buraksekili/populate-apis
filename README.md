@@ -19,11 +19,14 @@ TYK_AUTH=<AUTH_KEY> ./clean.sh
 
 ## k8s-clean.sh
 
-Deletes all TykApis and SecurityPolicies created on your k8s environment.
+Deletes all TykApis, SecurityPolicies and test namespaces created on your k8s environment.
+
+By default, it only deletes namespaces with "tyk-operator-" prefix as it is the name of 
+namespaces used in Tyk Operator integration tests. You can change the prefix via `NS` flag.
 
 Usage: 
 ```bash
-./k8s-clean.sh
+NS=yourNs ./k8s-clean.sh
 ```
 
 For example, let's say you have following resources on your k8s cluster.
@@ -47,6 +50,7 @@ You can delete all as follows:
 ```
 ./k8s-clean.sh
 ```
+
 
 ## k8s-create.sh
 
