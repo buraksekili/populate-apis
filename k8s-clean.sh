@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Deletes all TykApis created on your k8s environment.
+# Deletes all ApiDefinition and SecurityPolicy CRscreated on your k8s environment.
+# Alternatively, it can delete namespaces starting with given prefix.
 # 
 # Usage: 
 #   sh k8s-clean.sh
@@ -15,6 +16,7 @@ for policy in ${policies[@]}; do
     kubectl delete securitypolicies $name -n $ns
 done
 
+# Then delete ApiDefinition
 tykapis=$(kubectl get tykapis -A -o json | jq -r '.items[] | {name: .metadata.name, namespace: .metadata.namespace}')
 apis=$(echo "$tykapis" | jq -c -r '.')
 
@@ -24,4 +26,23 @@ for api in ${apis[@]}; do
     kubectl delete tykapis $name -n $ns
 done
 
+
+nsOutput=$(kubectl get ns -o json | jq -r '.items[] | {name: .metadata.name}')
+namespaces=$(echo "$nsOutput" | jq -c -r '.')
+
+NSPREFIX="tyk-operator-"
+if [[ -n $NS ]]
+then
+	NSPREFIX=$NS 
+fi
+
+echo "looking for ${NSPREFIX}"
+
+for namespace in ${namespaces[@]}; do
+    ns=$(echo $namespace | jq -r '.name')
+    if [[ $ns != tyk-operator-system ]] && [[ $ns =~ tyk-operator-* ]]
+    then
+	kubectl delete ns $ns &
+    fi
+done
 
