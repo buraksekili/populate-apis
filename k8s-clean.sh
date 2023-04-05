@@ -26,6 +26,16 @@ for api in ${apis[@]}; do
     kubectl delete tykapis $name -n $ns
 done
 
+# Delete all OperatorContext CRs
+operatorcontexts=$(kubectl get operatorcontexts -A -o json | jq -r '.items[] | {name: .metadata.name, namespace: .metadata.namespace}')
+opCtxs=$(echo "$operatorcontexts" | jq -c -r '.')
+
+for opCtx in ${opCtxs[@]}; do
+    name=$(echo $opCtx | jq -r '.name')
+    ns=$(echo $opCtx | jq -r '.namespace')
+    kubectl delete operatorcontext $name -n $ns &
+    kubectl patch operatorcontext $name -n $ns -p '{"metadata":{"finalizers":null}}' --type=merge
+done
 
 nsOutput=$(kubectl get ns -o json | jq -r '.items[] | {name: .metadata.name}')
 namespaces=$(echo "$nsOutput" | jq -c -r '.')
