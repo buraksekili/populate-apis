@@ -1,3 +1,5 @@
+TYK_AUTH=$(kubectl get secrets -n tyk-operator-system tyk-operator-conf --template={{.data.TYK_AUTH}} | base64 -d)
+
 deletePolicy() {
     curl -X DELETE -H "Authorization: $TYK_AUTH" localhost:3000/api/portal/policies/$1
 }
