@@ -36,7 +36,7 @@ createApi() {
     curl -sSi -H "Authorization: $TYK_AUTH" \
         -H "Content-Type: application/json" \
         -X POST \
-        -d "$reqBody" http://localhost:3000/api/apis
+        -d "$reqBody" $TYK_URL/api/apis
 }
 
 createPolicy() {
@@ -55,7 +55,7 @@ createPolicy() {
     curl -sSi -H "Authorization: $TYK_AUTH" \
         -H "Content-Type: application/json" \
         -X POST \
-        -d "$reqBody" http://localhost:3000/api/portal/policies/
+        -d "$reqBody" $TYK_URL/api/portal/policies/
 }
 
 if [[ -z "$MAX" ]]

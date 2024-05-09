@@ -25,7 +25,19 @@ for api in ${apis[@]}; do
     name=$(echo $api | jq -r '.name')
     ns=$(echo $api | jq -r '.namespace')
     echo "deleting tykapis $ns/$name"
-    kubectl delete tykapis $name -n $ns
+    kubectl delete tykapis $name -n $ns &
+    kubectl patch tykapis $name -n $ns -p '{"metadata":{"finalizers":null}}' --type=merge &
+done
+
+# First delete all tyk-oas-apis.
+tykoas=$(kubectl get tykoas -A -o json | jq -r '.items[] | {name: .metadata.name, namespace: .metadata.namespace}')
+oas=$(echo "$tykoas" | jq -c -r '.')
+
+for o in ${oas[@]}; do
+    name=$(echo $o | jq -r '.name')
+    ns=$(echo $o | jq -r '.namespace')
+    echo "deleting tykoas $ns/$name"
+    kubectl delete tykoas $name -n $ns
 done
 
 # Delete all OperatorContext CRs

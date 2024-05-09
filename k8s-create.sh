@@ -19,7 +19,7 @@ spec:
   do_not_track: false
   proxy:
     target_url: http://httpbin.org/
-    listen_path: /httpbin
+    listen_path: /httpbin-test%s
     strip_listen_path: true
   version_data:
     default_version: Default
@@ -28,7 +28,7 @@ spec:
       Default:
         name: Default
 '
-    reqBody=$(printf "$reqBody" "$1" "$1")
+    reqBody=$(printf "$reqBody" "$1" "$1" "$1")
 
 
     cat <<EOF | kubectl apply -f -             
