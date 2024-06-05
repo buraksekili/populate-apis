@@ -122,6 +122,6 @@ for i in $(seq 1 $MAX); do
   oasApiName=$(printf "test-api-%d" $i)
   createOasApi "$oasApiName" "$listenPath"
 
-#  policyName=$(printf "custom-policy-%d" $i)
-#  createPolicy $policyName
+  policyName=$(printf "custom-policy-%d" $i)
+  createPolicy $policyName
 done
