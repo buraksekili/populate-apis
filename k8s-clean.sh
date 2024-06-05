@@ -6,7 +6,16 @@
 # Usage: 
 #   sh k8s-clean.sh
 
-# First delete all policies.
+ingress=$(kubectl get ing -A -o json | jq -r '.items[] | {name: .metadata.name, namespace: .metadata.namespace}')
+ingressList=$(echo "$ingress" | jq -c -r '.')
+
+for ing in ${ingressList[@]}; do
+    name=$(echo $ing | jq -r '.name')
+    ns=$(echo $ing | jq -r '.namespace')
+    echo "deleting ingress $ns/$name"
+    kubectl delete ing $name -n $ns
+done
+
 securityPolicies=$(kubectl get securitypolicies -A -o json | jq -r '.items[] | {name: .metadata.name, namespace: .metadata.namespace}')
 policies=$(echo "$securityPolicies" | jq -c -r '.')
 
