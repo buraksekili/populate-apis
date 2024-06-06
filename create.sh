@@ -128,7 +128,7 @@ for i in $(seq 1 $MAX); do
 
   apiName=$(printf "test-api-%d %s" $i $env)
   listenPath=$(printf "test-api-%d" $i)
-  api_id=$(printf "random-id-%d $i")
+  api_id=$(printf "random-id-%d" $i)
   createClassicApi "$apiName" "$listenPath" "$api_id"
 
   oasApiName=$(printf "test-api-%d" $i)
