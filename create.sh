@@ -28,7 +28,7 @@ createOasApi() {
         },
         "server": {
           "listenPath": {
-            "value": "%s",
+            "value": "/%s",
             "strip": true
           }
         }
@@ -55,6 +55,7 @@ createClassicApi() {
   reqBody='{
         "api_definition": {
             "name": "%s",
+            "api_id": "%s",
             "proxy": {
                 "target_url": "http://httpbin.org/",
                 "listen_path": "/%s/",
@@ -76,12 +77,22 @@ createClassicApi() {
             }
         }
     }'
-  reqBody=$(printf "$reqBody" "$1" "$2" "$2")
+  reqBody=$(printf "$reqBody" "$1" "$3" "$2" "$2")
 
-  curl -sSi -H "Authorization: $TYK_AUTH" \
-    -H "Content-Type: application/json" \
-    -X POST \
-    -d "$reqBody" $TYK_URL/api/apis
+#  response=$(curl -f -sSi -H "Authorization: $TYK_AUTH" \
+#    -H "Content-Type: application/json" \
+#    -X POST \
+#    -d "$reqBody" $TYK_URL/api/apis)
+  response=$(curl -s -H "Authorization: $TYK_AUTH" -X POST -d "$reqBody" "$TYK_URL/api/apis" -w "\n%{http_code}")
+  responseCode=$(tail -n1 <<< "$response")
+
+  if [[ $responseCode -ge 200 ]] && [[ $responseCode -lt 300 ]]; then
+    echo "API Definition with ID $3 created."
+  elif [[ $responseCode -eq 409 ]]; then
+    echo "Skip API creation, API Definition with ID $3 already exists."
+  else
+    echo -e "\t[ERROR] Failed to create API Definition with ID: $3 , responseCode: $responseCode"
+  fi
 }
 
 createPolicy() {
@@ -117,7 +128,8 @@ for i in $(seq 1 $MAX); do
 
   apiName=$(printf "test-api-%d %s" $i $env)
   listenPath=$(printf "test-api-%d" $i)
-  createClassicApi "$apiName" "$listenPath"
+  api_id=$(printf "random-id-%d $i")
+  createClassicApi "$apiName" "$listenPath" "$api_id"
 
   oasApiName=$(printf "test-api-%d" $i)
   createOasApi "$oasApiName" "$listenPath"
