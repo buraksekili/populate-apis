@@ -37,8 +37,6 @@ createOasApi() {
 
   reqBody=$(printf "$reqBody" "$1" "$1" "$1" "$2")
 
-  echo "TYK_GATEWAY => $TYK_GATEWAY"
-
   if [[ -z "${TYK_GATEWAY}" ]]; then
     curl -sSi -H "Authorization: $TYK_AUTH" \
       -H "Content-Type: application/json" \
