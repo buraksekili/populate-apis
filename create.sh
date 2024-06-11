@@ -89,12 +89,6 @@ createClassicApi() {
 
 
   if [[ -z $TYK_GATEWAY ]]; then
-    curl -sSi -H "x-tyk-authorization: $TYK_AUTH" \
-      -H "Content-Type: text/plain" \
-      -X POST \
-      -d "$reqBody" "$TYK_URL"/tyk/apis
-      reloadGateway
-  else
     response=$(curl -s -H "Authorization: $TYK_AUTH" -X POST -d "$reqBody" "$TYK_URL/api/apis" -w "\n%{http_code}")
     responseCode=$(tail -n1 <<< "$response")
 
@@ -105,6 +99,12 @@ createClassicApi() {
     else
       echo -e "\t[ERROR] Failed to create API Definition with ID: $3 , responseCode: $responseCode"
     fi
+  else
+    curl -sSi -H "x-tyk-authorization: $TYK_AUTH" \
+      -H "Content-Type: text/plain" \
+      -X POST \
+      -d "$reqBody" "$TYK_URL"/tyk/apis
+      reloadGateway
   fi
 }
 
@@ -128,15 +128,15 @@ createPolicy() {
 
 
   if [[ -z $TYK_GATEWAY ]]; then
-    curl -sSi -H "x-tyk-authorization: $TYK_AUTH" \
-      -X POST \
-      -d "$reqBody" $TYK_URL/tyk/policies/
-    reloadGateway
-  else
     curl -sSi -H "Authorization: $TYK_AUTH" \
       -H "Content-Type: application/json" \
       -X POST \
       -d "$reqBody" $TYK_URL/api/portal/policies/
+  else
+    curl -sSi -H "x-tyk-authorization: $TYK_AUTH" \
+      -X POST \
+      -d "$reqBody" $TYK_URL/tyk/policies/
+    reloadGateway
   fi
 }
 
