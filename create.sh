@@ -4,7 +4,7 @@
 # Creates a specified number of APIs on the Tyk Dashboard. By default, it creates 5 APIs.
 #
 # Usage:
-#   TYK_AUTH=<AUTH_KEY> TYK_URL=<TYK_URL> MAX=<MAX> ./create.sh
+#   TYK_AUTH=<AUTH_KEY> TYK_URL=<TYK_URL> TYK_GATEWAY=<TYK_GATEWAY> MAX=<MAX> ./create.sh
 
 createOasApi() {
   reqBody='{
@@ -37,18 +37,26 @@ createOasApi() {
 
   reqBody=$(printf "$reqBody" "$1" "$1" "$1" "$2")
 
-  echo $reqBody
+  echo "TYK_GATEWAY => $TYK_GATEWAY"
 
-  curl -sSi -H "Authorization: $TYK_AUTH" \
-    -H "Content-Type: application/json" \
-    -X POST \
-    -d "$reqBody" "$TYK_URL"/api/apis/oas
+  if [[ -z "${TYK_GATEWAY}" ]]; then
+    curl -sSi -H "Authorization: $TYK_AUTH" \
+      -H "Content-Type: application/json" \
+      -X POST \
+      -d "$reqBody" "$TYK_URL"/api/apis/oas
 
 
-  curl -sSi -H "Authorization: $TYK_AUTH" \
-    -H "Content-Type: application/json" \
-    -X PUT \
-    -d '{ "categories": ["oascategory"]}' "$TYK_URL"/api/apis/oas/"$1"/categories
+    curl -sSi -H "Authorization: $TYK_AUTH" \
+      -H "Content-Type: application/json" \
+      -X PUT \
+      -d '{ "categories": ["oascategory"]}' "$TYK_URL"/api/apis/oas/"$1"/categories
+  else
+    curl -sS -H "x-tyk-authorization: $TYK_AUTH" \
+      -H "Content-Type: text/plain" \
+      -X POST \
+      -d "$reqBody" $TYK_URL/tyk/apis/oas/
+      reloadGateway
+  fi
 }
 
 createClassicApi() {
@@ -79,20 +87,29 @@ createClassicApi() {
     }'
   reqBody=$(printf "$reqBody" "$1" "$3" "$2" "$2")
 
-#  response=$(curl -f -sSi -H "Authorization: $TYK_AUTH" \
-#    -H "Content-Type: application/json" \
-#    -X POST \
-#    -d "$reqBody" $TYK_URL/api/apis)
-  response=$(curl -s -H "Authorization: $TYK_AUTH" -X POST -d "$reqBody" "$TYK_URL/api/apis" -w "\n%{http_code}")
-  responseCode=$(tail -n1 <<< "$response")
 
-  if [[ $responseCode -ge 200 ]] && [[ $responseCode -lt 300 ]]; then
-    echo "API Definition with ID $3 created."
-  elif [[ $responseCode -eq 409 ]]; then
-    echo "Skip API creation, API Definition with ID $3 already exists."
+  if [[ -z $TYK_GATEWAY ]]; then
+    curl -sSi -H "x-tyk-authorization: $TYK_AUTH" \
+      -H "Content-Type: text/plain" \
+      -X POST \
+      -d "$reqBody" "$TYK_URL"/tyk/apis
+      reloadGateway
   else
-    echo -e "\t[ERROR] Failed to create API Definition with ID: $3 , responseCode: $responseCode"
+    response=$(curl -s -H "Authorization: $TYK_AUTH" -X POST -d "$reqBody" "$TYK_URL/api/apis" -w "\n%{http_code}")
+    responseCode=$(tail -n1 <<< "$response")
+
+    if [[ $responseCode -ge 200 ]] && [[ $responseCode -lt 300 ]]; then
+      echo "API Definition with ID $3 created."
+    elif [[ $responseCode -eq 409 ]]; then
+      echo "Skip API creation, API Definition with ID $3 already exists."
+    else
+      echo -e "\t[ERROR] Failed to create API Definition with ID: $3 , responseCode: $responseCode"
+    fi
   fi
+}
+
+reloadGateway() {
+  curl -s -H "x-tyk-authorization: $TYK_AUTH" "$TYK_URL/tyk/reload/group"
 }
 
 createPolicy() {
@@ -104,14 +121,23 @@ createPolicy() {
         "quota_remaining": 0,
         "quota_renewal_rate": 60,
         "name": "%s",
+        "id": "%s",
         "active": true
     }'
-  reqBody=$(printf "$reqBody" "$1")
+  reqBody=$(printf "$reqBody" "$1" "$2")
 
-  curl -sSi -H "Authorization: $TYK_AUTH" \
-    -H "Content-Type: application/json" \
-    -X POST \
-    -d "$reqBody" $TYK_URL/api/portal/policies/
+
+  if [[ -z $TYK_GATEWAY ]]; then
+    curl -sSi -H "x-tyk-authorization: $TYK_AUTH" \
+      -X POST \
+      -d "$reqBody" $TYK_URL/tyk/policies/
+    reloadGateway
+  else
+    curl -sSi -H "Authorization: $TYK_AUTH" \
+      -H "Content-Type: application/json" \
+      -X POST \
+      -d "$reqBody" $TYK_URL/api/portal/policies/
+  fi
 }
 
 if [[ -z "$MAX" ]]; then
@@ -135,5 +161,6 @@ for i in $(seq 1 $MAX); do
   createOasApi "$oasApiName" "$listenPath"
 
   policyName=$(printf "custom-policy-%d" $i)
-  createPolicy $policyName
+  policyId=$(printf "someid%d" $i)
+  createPolicy "$policyName" "$policyId"
 done
